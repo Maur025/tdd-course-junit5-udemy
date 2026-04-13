@@ -17,13 +17,13 @@ class TextNormalizerTest {
     @Test
     void shouldNormalizeText() {
         // GIVEN
-        String textToNormalize = "AQuello está allí";
+        String textToNormalize = "  AQuello está allí  . áéíóú";
 
         // WHEN
         String actualResult = normalizer.normalizeUppercase(textToNormalize);
 
         // THEN
-        assertEquals("AQUELLO ESTA ALLI", actualResult);
+        assertEquals("AQUELLO ESTA ALLI  . AEIOU", actualResult);
     }
 
     @Test
@@ -33,6 +33,18 @@ class TextNormalizerTest {
 
         // WHEN
         String actualResult = normalizer.normalizeUppercase(textToNormalize);
+
+        // THEN
+        assertEquals("", actualResult);
+    }
+
+    @Test
+    void shouldNormalizeText_null() {
+        // GIVEN
+        String nullText = null;
+
+        // WHEN
+        String actualResult = normalizer.normalizeUppercase(nullText);
 
         // THEN
         assertEquals("", actualResult);
