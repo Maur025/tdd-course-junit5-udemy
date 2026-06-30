@@ -1,11 +1,15 @@
 package com.sergiotrapiello.cursotesting.basico;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 class EmailValidatorTest {
 
@@ -51,12 +55,36 @@ class EmailValidatorTest {
 
     @Test
     @DisplayName("should validate email")
-    void shouldValidateEmail_null() {
+    void shouldValidateEmail_null_assertThrowsIdiom() {
         // GIVEN
         String emailNull = null;
         // WHEN
-        boolean isValid = emailValidator.isValid(emailNull);
+        Executable executable = () -> emailValidator.isValid(emailNull);
         // THEN
-        assertFalse(isValid);
+        IllegalArgumentException ex = assertThrowsExactly(
+            IllegalArgumentException.class, executable);
+
+        assertExceptionMessage(ex, "The email to validate cannot be null");
+    }
+
+    @Test
+    @DisplayName("should validate email")
+    void shouldThrowIllegalArgumentException_emailNull_tryCatchIdiom() {
+        // GIVEN
+        String emailNull = null;
+        // WHEN
+        try {
+            emailValidator.isValid(emailNull);
+
+            // THEN
+            fail("An exception should be throw");
+        } catch (IllegalArgumentException ex) {
+            assertExceptionMessage(ex, "The email to validate cannot be null");
+        }
+    }
+
+    private void assertExceptionMessage(Exception ex, String expectedMsg) {
+        assertEquals(
+            expectedMsg, ex.getMessage(), "The message of exception is not what expected. ");
     }
 }
