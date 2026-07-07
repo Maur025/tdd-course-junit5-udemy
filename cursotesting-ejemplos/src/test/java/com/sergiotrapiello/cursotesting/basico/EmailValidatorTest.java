@@ -6,51 +6,61 @@ import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class EmailValidatorTest {
 
     private EmailValidator emailValidator;
+
+    private static Stream<Arguments> shouldValidateEmailArguments() {
+        return Stream.of(
+            Arguments.of("usuario@email.com", true), Arguments.of("a@email.com", true),
+            Arguments.of("a@b.com", false), Arguments.of("    ", false)
+        );
+    }
 
     @BeforeEach
     void setup() {
         emailValidator = new EmailValidator();
     }
 
-    @Test
+    @ParameterizedTest
+    @ValueSource(
+        strings = {"mmoyapalli@gmail.com", "a@email.com", "mmoya@email.es.com", "a.b@bcd.es"})
     @DisplayName("should valid email")
-    void shouldValidEmail() {
-        // GIVEN
-        String emailNull = "mmoyapalli@gmail.com";
+    void shouldValidEmail(String email) {
         // WHEN
-        boolean isValid = emailValidator.isValid(emailNull);
+        boolean valid = emailValidator.isValid(email);
         // THEN
-        assertTrue(isValid);
+        assertValid(valid);
     }
 
-    @Test
-    @DisplayName("should validate email two at")
-    void shouldValidEmail_twoAt() {
-        // GIVEN
-        String emailNull = "mmoyapalli@gmai@l.com";
+    @ParameterizedTest
+    @ValueSource(strings = {"", "    ", "usuarioemail.com", "a@b.com", "dsaf"})
+    void shouldNotValidateEmail(String email) {
         // WHEN
-        boolean isValid = emailValidator.isValid(emailNull);
+        boolean valid = emailValidator.isValid(email);
+
         // THEN
-        assertFalse(isValid);
+        assertNotValid(valid);
     }
 
-    @Test
-    @DisplayName("should validate email malformed domain")
-    void shouldValidEmail_malformedDomain() {
-        // GIVEN
-        String emailNull = "mmoya-palli@gm-$ail_dddd.com";
+    @ParameterizedTest
+    @MethodSource("shouldValidateEmailArguments")
+    @DisplayName("should ")
+    void shouldValidateEmail(String email, boolean expectedResult) {
         // WHEN
-        boolean isValid = emailValidator.isValid(emailNull);
+        boolean result = emailValidator.isValid(email);
         // THEN
-        assertFalse(isValid);
+        assertEquals(expectedResult, result);
     }
 
     @Test
@@ -86,5 +96,13 @@ class EmailValidatorTest {
     private void assertExceptionMessage(Exception ex, String expectedMsg) {
         assertEquals(
             expectedMsg, ex.getMessage(), "The message of exception is not what expected. ");
+    }
+
+    private void assertNotValid(boolean valid) {
+        assertFalse(valid, "The email should NOT be valid");
+    }
+
+    private void assertValid(boolean valid) {
+        assertTrue(valid, "The email should be valid");
     }
 }
